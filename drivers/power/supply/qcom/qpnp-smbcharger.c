@@ -5894,12 +5894,26 @@ static int smbchg_usb_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_TYPE:
 		val->intval = chip->usb_psy_d.type;
 		break;
+#ifdef CONFIG_VENDOR_LEECO
+        case POWER_SUPPLY_PROP_VOLTAGE_NOW:
+                val->intval = get_prop_usbin_voltage_now(mdwc);
+                break;
+#endif
 	case POWER_SUPPLY_PROP_REAL_TYPE:
 		val->intval = chip->usb_supply_type;
 		break;
 	case POWER_SUPPLY_PROP_HEALTH:
 		val->intval = chip->usb_health;
 		break;
+#ifdef CONFIG_VENDOR_LEECO
+        case POWER_SUPPLY_PROP_LE_USBIN_TEMP:
+                val->intval = get_prop_usbin_temp_now(mdwc);
+                break;
+        case POWER_SUPPLY_PROP_LE_VPH_VOLTAGE:
+                val->intval = get_prop_vph_pwr_now(mdwc);
+                break;
+#endif
+
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
 		val->intval = smbchg_get_vusb(chip);
 		break;
@@ -5956,6 +5970,11 @@ static enum power_supply_property smbchg_usb_properties[] = {
 	POWER_SUPPLY_PROP_CURRENT_MAX,
 	POWER_SUPPLY_PROP_TYPE,
 	POWER_SUPPLY_PROP_REAL_TYPE,
+#ifdef CONFIG_VENDOR_LEECO
+        POWER_SUPPLY_PROP_VOLTAGE_NOW,
+        POWER_SUPPLY_PROP_LE_USBIN_TEMP,
+        POWER_SUPPLY_PROP_LE_VPH_VOLTAGE,
+#endif
 	POWER_SUPPLY_PROP_HEALTH,
 	POWER_SUPPLY_PROP_SDP_CURRENT_MAX,
 	POWER_SUPPLY_PROP_VOLTAGE_NOW,

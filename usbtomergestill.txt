@@ -1,0 +1,3 @@
+        both modified:   drivers/usb/dwc3/dwc3-msm.c
+        both modified:   drivers/usb/misc/Kconfig
+        both modified:   drivers/usb/misc/Makefile
