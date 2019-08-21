@@ -221,6 +221,13 @@ config AXP288_CHARGER
 	  Say yes here to have support X-Power AXP288 power management IC (PMIC)
 	  integrated charger.
 
+config QPNP_MHL
+	tristate "LeTV MHL state information"
+	default n
+	depends on QPNP_SMBCHARGER
+	help
+	  Say Y here to enable LeTV's MHL state information.
+
 config AXP288_FUEL_GAUGE
 	tristate "X-Powers AXP288 Fuel Gauge"
 	depends on MFD_AXP20X && IIO
