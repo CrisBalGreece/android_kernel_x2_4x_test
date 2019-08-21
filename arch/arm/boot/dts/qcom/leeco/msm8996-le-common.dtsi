@@ -26,9 +26,7 @@
 	};
 
 	reserved-memory {
-		ramoops_mem: ramoops_region@91500000 {
-			compatible = "shared-dma-pool";
-			no-map;
+		ramoops_mem: ramoops_mem@91500000 {
 			reg = <0 0x91500000 0 0x00100000>;
 			label = "ramoops_mem";
 		};
@@ -65,14 +63,11 @@
 	ramoops {
 		compatible = "ramoops";
 		status = "ok";
-		android,ramoops-buffer-start = <0x91500000>;
-		android,ramoops-buffer-size =  <0x100000>;
-		android,ramoops-console-size = <0x60000>;
-		android,ramoops-record-size = <0x10000>;
-		android,ramoops-ftrace-size = <0x10000>;
-		android,ramoops-pmsg-size = <0x20000>;
-		android,ramoops-dump-oops = <0x1>;
 		memory-region = <&ramoops_mem>;
+		console-size = <0x0 0x00080000>;
+		pmsg-size    = <0x0 0x00040000>;
+		record-size  = <0x0 0x00008000>;
+		ftrace-size  = <0x0 0x00020000>;
 	};
 
 	i2c_9: i2c@75b7000 { /* BLSP2 QUP2 */
