@@ -318,11 +318,17 @@ struct device_node *of_batterydata_get_best_profile(
 {
 	struct batt_ids batt_ids;
 	struct device_node *node, *best_node = NULL;
+#ifdef CONFIG_VENDOR_LEECO
+	struct device_node *default_node = NULL;
+#endif
 	const char *battery_type = NULL;
 	int delta = 0, best_delta = 0, best_id_kohm = 0, id_range_pct,
 		i = 0, rc = 0, limit = 0;
 	bool in_range = false;
 
+#ifdef CONFIG_VENDOR_LEECO
+	pr_info("battery_id_ohm : %d (kohm) \n", batt_id_kohm);
+#endif
 	/* read battery id range percentage for best profile */
 	rc = of_property_read_u32(batterydata_container_node,
 			"qcom,batt-id-range-pct", &id_range_pct);
@@ -335,6 +341,10 @@ struct device_node *of_batterydata_get_best_profile(
 			return ERR_PTR(-ENXIO);
 		}
 	}
+
+#ifdef CONFIG_VENDOR_LEECO
+	default_node = of_get_next_child(batterydata_container_node, NULL);
+#endif
 
 	/*
 	 * Find the battery data with a battery id resistor closest to this one
@@ -400,6 +410,26 @@ struct device_node *of_batterydata_get_best_profile(
 		}
 	}
 
+#ifdef CONFIG_VENDOR_LEECO
+	if (best_node == NULL) {
+		if (default_node != NULL) {
+			best_node = default_node;
+			pr_info("No battery data found, use default battery data\n");
+		} else {
+			pr_err("No battery data found\n");
+			return best_node;
+		}
+	} else {
+		/* check that profile id is in range of the measured batt_id */
+		if (abs(best_id_kohm - batt_id_kohm) >
+				((best_id_kohm * id_range_pct) / 100)) {
+			pr_err("out of range: profile id %d batt id %d pct %d",
+				best_id_kohm, batt_id_kohm, id_range_pct);
+			return NULL;
+		}
+	}
+#else
+
 	if (best_node == NULL) {
 		pr_err("No battery data found\n");
 		return best_node;
@@ -453,6 +483,9 @@ int of_batterydata_read_data(struct device_node *batterydata_container_node,
 	/*
 	 * Find the battery data with a battery id resistor closest to this one
 	 */
+#ifdef CONFIG_VENDOR_LEECO
+	best_node = of_get_next_child(batterydata_container_node, NULL);
+#endif
 	for_each_child_of_node(batterydata_container_node, node) {
 		rc = of_batterydata_read_batt_id_kohm(node,
 						"qcom,batt-id-kohm",
