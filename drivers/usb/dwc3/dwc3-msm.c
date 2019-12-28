@@ -47,7 +47,7 @@
 #include <linux/extcon.h>
 #include <linux/reset.h>
 #include <soc/qcom/boot_stats.h>
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
 #include <linux/qpnp/qpnp-adc.h>
 #include <linux/suspend.h>
 #include <linux/fb.h>
@@ -73,7 +73,7 @@
 /* AHB2PHY read/write waite value */
 #define ONE_READ_WRITE_WAIT 0x11
 
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
 static struct dwc3_msm *_msm_dwc;
 #endif
 
@@ -222,10 +222,8 @@ struct dwc3_msm {
 
 	/* VBUS regulator for host mode */
 	struct regulator	*vbus_reg;
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
 	int			vbus_on;
-	struct qpnp_vadc_chip	*vadc_dev;
-	struct qpnp_vadc_chip	*usb_tm_dev;
 	bool			vbus_set_by_cclogic;
 #endif
 	int			vbus_retry_count;
@@ -269,8 +267,6 @@ struct dwc3_msm {
 	bool			hc_died;
 	bool			xhci_ss_compliance_enable;
 	bool			no_wakeup_src_in_hostmode;
-	bool			check_for_float;
-	bool			float_detected;
 
 	struct extcon_dev	*extcon_vbus;
 	struct extcon_dev	*extcon_id;
@@ -2547,36 +2543,7 @@ static irqreturn_t msm_dwc3_pwr_irq_thread(int irq, void *_mdwc)
 	return IRQ_HANDLED;
 }
 
-#ifdef CONFIG_VENDOR_LEECO
-int dwc3_set_msm_usb_host_mode(bool mode)
-{
-	struct dwc3_msm *mdwc = NULL;
-	struct dwc3 *dwc = NULL;
-
-	if (NULL == _msm_dwc)
-		return -ENODEV;
-
-	mdwc = _msm_dwc;
-	dwc = platform_get_drvdata(mdwc->dwc3);
-
-	dev_err(mdwc->dev, "%s = %s_mode.\n", __func__, mode?"host":"device");
-
-	if (mode) {
-		mdwc->id_state = DWC3_ID_GROUND;
-	} else {
-		mdwc->id_state = DWC3_ID_FLOAT;
-	}
-
-	if (atomic_read(&dwc->in_lpm)) {
-		dwc3_resume_work(&mdwc->resume_work);
-	} else {
-		dwc3_ext_event_notify(mdwc);
-	}
-
-	return mode;
-}
-EXPORT_SYMBOL(dwc3_set_msm_usb_host_mode);
-
+#ifndef CONFIG_VENDOR_LEECO
 static int _msm_usb_vbus_on(struct dwc3_msm *_mdwc)
 {
 	struct dwc3_msm	*mdwc = (_mdwc ? _mdwc : _msm_dwc);
@@ -2969,12 +2936,11 @@ static int dwc3_msm_vbus_notifier(struct notifier_block *nb,
 		goto done;
 	}
 
-	dev_dbg(mdwc->dev, "vbus:%ld event received\n", event);
+	dev_err(mdwc->dev, "vbus:%ld event received\n", event);
 
 	if (mdwc->vbus_active == event)
 		return NOTIFY_DONE;
 
-	mdwc->float_detected = false;
 	cc_state = extcon_get_cable_state_(edev, EXTCON_USB_CC);
 	if (cc_state < 0)
 		mdwc->typec_orientation = ORIENTATION_NONE;
@@ -3178,7 +3144,7 @@ static ssize_t xhci_link_compliance_store(struct device *dev,
 	return ret;
 }
 
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
 static int usbheadset_resume_pm_event(struct notifier_block *notifier,
            unsigned long event, void *data)
 {
@@ -3495,12 +3461,13 @@ static int dwc3_msm_probe(struct platform_device *pdev)
 	if (mdwc->no_wakeup_src_in_hostmode)
 		dev_dbg(&pdev->dev, "dwc3 host not using wakeup source\n");
 
-	dwc3_set_notifier(&dwc3_msm_notify_event);
-
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
         mdwc->vbus_set_by_cclogic = of_property_read_bool(node,
                                 "qcom,vbus_set_by_cclogic");
 #endif
+
+
+	dwc3_set_notifier(&dwc3_msm_notify_event);
 
 
 	/* Assumes dwc3 is the first DT child of dwc3-msm */
@@ -3571,7 +3538,7 @@ static int dwc3_msm_probe(struct platform_device *pdev)
 	device_init_wakeup(mdwc->dev, 1);
 
 
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
         /* Register headset on Type-C. */
         fb_register_client(&usbheadset_pm_resume_notifier_block);
 #endif
@@ -3579,8 +3546,6 @@ static int dwc3_msm_probe(struct platform_device *pdev)
 	if (of_property_read_bool(node, "qcom,disable-dev-mode-pm"))
 		pm_runtime_get_noresume(mdwc->dev);
 
-	mdwc->check_for_float = of_property_read_bool(node,
-					"qcom,check-for-float");
 	ret = dwc3_msm_extcon_register(mdwc);
 	if (ret)
 		goto put_dwc3;
@@ -3696,7 +3661,7 @@ static int dwc3_msm_remove(struct platform_device *pdev)
 
 	if (mdwc->bus_perf_client)
 		msm_bus_scale_unregister_client(mdwc->bus_perf_client);
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
         /* Disable USB VBUS after removal. */
         msm_usb_vbus_set(mdwc, 0, false);
 #else
@@ -3865,7 +3830,7 @@ static int dwc3_otg_start_host(struct dwc3_msm *mdwc, int on)
 			mdwc->vbus_reg = NULL;
 			return -EPROBE_DEFER;
 		}
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
                 mdwc->vbus_on = 0;
                 _msm_usb_vbus_on(mdwc);
 #endif
@@ -3875,7 +3840,7 @@ static int dwc3_otg_start_host(struct dwc3_msm *mdwc, int on)
 	if (on) {
 		dev_dbg(mdwc->dev, "%s: turn on host\n", __func__);
 
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
                 if (mdwc->in_host_mode) {
                         printk("dwc3 is already in host mode\n");
                         return 0;
@@ -3900,7 +3865,7 @@ static int dwc3_otg_start_host(struct dwc3_msm *mdwc, int on)
 		dbg_event(0xFF, "StrtHost gync",
 			atomic_read(&mdwc->dev->power.usage_count));
 
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
                 /* Enable USB VBUS. */
                 ret = msm_usb_vbus_set(mdwc, 1, false);
 #else
@@ -3937,7 +3902,7 @@ static int dwc3_otg_start_host(struct dwc3_msm *mdwc, int on)
 			dev_err(mdwc->dev,
 				"%s: failed to add XHCI pdev ret=%d\n",
 				__func__, ret);
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
                         /* Disable USB VBUS if XHCI is gone. */
                         msm_usb_vbus_set(mdwc, 0, false);
 #else
@@ -4000,16 +3965,16 @@ static int dwc3_otg_start_host(struct dwc3_msm *mdwc, int on)
 		schedule_delayed_work(&mdwc->perf_vote_work,
 				msecs_to_jiffies(1000 * PM_QOS_SAMPLE_SEC));
 	} else {
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
                 if (!mdwc->in_host_mode) {
                         printk("dwc3 is already in device mode\n");
                         return 0;
                 }
 #endif
-		dev_dbg(mdwc->dev, "%s: turn off host\n", __func__);
+		dev_err(mdwc->dev, "%s: turn off host\n", __func__);
 
 		usb_unregister_atomic_notify(&mdwc->usbdev_nb);
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
                 /* Try to disable USB VBUS if host is off. */
                 ret = msm_usb_vbus_set(mdwc, 0, false);
                 if (ret) {
@@ -4181,8 +4146,7 @@ static int dwc3_msm_gadget_vbus_draw(struct dwc3_msm *mdwc, unsigned mA)
 	int ret, psy_type;
 
 	psy_type = get_psy_type(mdwc);
-	if (psy_type == POWER_SUPPLY_TYPE_USB_FLOAT
-		|| (mdwc->check_for_float && mdwc->float_detected)) {
+	if (psy_type == POWER_SUPPLY_TYPE_USB_FLOAT) {
 		if (!mA)
 			pval.intval = -ETIMEDOUT;
 		else
@@ -4273,7 +4237,6 @@ static void dwc3_otg_sm_work(struct work_struct *w)
 			work = 1;
 		} else if (test_bit(B_SESS_VLD, &mdwc->inputs)) {
 			dev_dbg(mdwc->dev, "b_sess_vld\n");
-			mdwc->float_detected = false;
 			if (get_psy_type(mdwc) == POWER_SUPPLY_TYPE_USB_FLOAT)
 				queue_delayed_work(mdwc->dwc3_wq,
 						&mdwc->sdp_check,
@@ -4286,21 +4249,6 @@ static void dwc3_otg_sm_work(struct work_struct *w)
 			pm_runtime_get_sync(mdwc->dev);
 			dbg_event(0xFF, "BIDLE gsync",
 				atomic_read(&mdwc->dev->power.usage_count));
-			if (mdwc->check_for_float) {
-				/*
-				 * If DP_DM are found to be floating, do not
-				 * start the peripheral mode.
-				 */
-				if (usb_phy_dpdm_with_idp_src(mdwc->hs_phy) ==
-							DP_DM_STATE_FLOAT) {
-					mdwc->float_detected = true;
-					dwc3_msm_gadget_vbus_draw(mdwc, 0);
-					pm_runtime_put_sync(mdwc->dev);
-					dbg_event(0xFF, "FLT sync", atomic_read(
-						&mdwc->dev->power.usage_count));
-					break;
-				}
-			}
 			dwc3_otg_start_peripheral(mdwc, 1);
 			mdwc->drd_state = DRD_STATE_PERIPHERAL;
 			work = 1;
@@ -4465,13 +4413,13 @@ static int dwc3_msm_pm_prepare(struct device *dev)
 	return 0;
 }
 
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
 extern int cclogic_get_audio_mode(void);
 #endif
 
 
 #ifdef CONFIG_PM_SLEEP
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
 int usb_vbus_suspend = 0;
 extern int letv_audio_mode_supported(void *data);
 #endif
@@ -4498,7 +4446,7 @@ static int dwc3_msm_pm_suspend(struct device *dev)
 	flush_work(&mdwc->bus_vote_w);
 	atomic_set(&mdwc->pm_suspended, 1);
 
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
         if (mdwc->vbus_on && letv_audio_mode_supported(NULL) &&
                 cclogic_get_audio_mode() == 0) {
                 _msm_usb_vbus_off(NULL);
