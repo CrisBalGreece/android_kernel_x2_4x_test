@@ -7,5 +7,10 @@ mainmenu "Linux/$ARCH $KERNELVERSION Kernel Configuration"
 config SRCARCH
 	string
 	option env="SRCARCH"
+	
+config VENDOR_LEECO
+	bool "LeEco support"
+	help
+	  This feature enables LeEco specific hacks
 
 source "arch/$SRCARCH/Kconfig"
