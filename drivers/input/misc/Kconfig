@@ -810,6 +810,13 @@ config INPUT_DRV260X_HAPTICS
 	  To compile this driver as a module, choose M here: the
 	  module will be called drv260x-haptics.
 
+
+config INPUT_NXU810
+	tristate "NXU810 support"
+	help
+	  Letv addon
+
+
 config INPUT_DRV2665_HAPTICS
 	tristate "TI DRV2665 haptics support"
 	depends on INPUT && I2C

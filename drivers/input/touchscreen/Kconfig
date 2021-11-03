@@ -12,6 +12,8 @@ menuconfig INPUT_TOUCHSCREEN
 if INPUT_TOUCHSCREEN
 
 source "drivers/input/touchscreen/synaptics_dsx/Kconfig"
+source "drivers/input/touchscreen/synaptics_dsx_letv/Kconfig"
+source "drivers/input/touchscreen/hideep_letv/Kconfig"
 
 config OF_TOUCHSCREEN
 	def_tristate INPUT
@@ -106,7 +108,7 @@ config TOUCHSCREEN_AR1021_I2C
 
 config TOUCHSCREEN_ATMEL_MXT
 	tristate "Atmel mXT I2C Touchscreen"
-	depends on I2C
+	depends on I2C && !VENDOR_LEECO
 	select FW_LOADER
 	help
 	  Say Y here if you have Atmel mXT series I2C touchscreen,
@@ -119,7 +121,7 @@ config TOUCHSCREEN_ATMEL_MXT
 
 config TOUCHSCREEN_ATMEL_MAXTOUCH_TS
 	tristate "Atmel Maxtouch Touchscreen Family"
-	depends on I2C
+	depends on I2C && !VENDOR_LEECO
 	help
 	  Say Y here if you have Atmel MaXTouch Touchscreen
 	  using i2c connected to your system.
@@ -128,6 +130,18 @@ config TOUCHSCREEN_ATMEL_MAXTOUCH_TS
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called atmel_maxtouch_ts.
+
+config TOUCHSCREEN_ATMEL_MXT_LETV
+	tristate "Atmel mXT I2C Touchscreen for the LeTV platform"
+	depends on I2C
+	help
+	  Say Y here if you have Atmel mXT series I2C touchscreen,
+	  such as mXT640T, connected to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called atmel_mxt_ts_letv.
 
 config TOUCHSCREEN_AUO_PIXCIR
 	tristate "AUO in-cell touchscreen using Pixcir ICs"
@@ -1180,7 +1194,7 @@ config TOUCHSCREEN_MAXIM_STI
 
 config SECURE_TOUCH
 	bool "Secure Touch"
-	depends on (TOUCHSCREEN_SYNAPTICS_I2C_RMI4 || \
+	depends on (TOUCHSCREEN_SYNAPTICS_I2C_RMI4 || TOUCHSCREEN_SYNAPTICS_DSX_I2C_LETV || \
 	  TOUCHSCREEN_SYNAPTICS_DSX_I2C_v21)
 	help
 	  Say Y here to enable Secure Touch in supported drivers.
@@ -1210,6 +1224,26 @@ config TOUCHSCREEN_FT5X06
 
          To compile this driver as a module, choose M here: the
          module will be called ft5x06_ts.
+
+config TOUCHSCREEN_FTS
+	bool "FocalTech I2C Touchscreen (LeTV)"
+	depends on I2C
+	help
+	  Say Y here if you have a Focaltech I2C touchscreen
+	  connected to your LeEco/LeTV device.
+
+	  If unsure, say N.
+
+config LETVS_CLASS
+       bool "letv class  for Mediatek package"
+       default n
+       help
+         Say Y here if you have letv class.
+
+         If unsure, say N.
+
+         To compile this dirver as a module, choose M here: the
+	 module will be called.
 
 config FT_SECURE_TOUCH
 	bool "Secure Touch support for Focaltech Touchscreen"

@@ -67,3 +67,4 @@ obj-y				+= qcom/
 obj-$(CONFIG_QPNP_MISC) 	+= qpnp-misc.o
 obj-$(CONFIG_MEMORY_STATE_TIME) += memory_state_time.o
 obj-$(CONFIG_CCLOGIC)           += cclogic/
+obj-$(CONFIG_IR_MAXQ616)	+= ir_maxq616.o
