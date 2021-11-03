@@ -2153,7 +2153,16 @@
 		compatible = "qcom,android-usb";
 		reg = <0x066bf0c8 0xc8>;
 		qcom,pm-qos-latency = <301 701 801>;
+		qcom,usb-core-id = <0>;
 	};
+	
+	android_usb1: android_usb1 {
+                compatible = "qcom,android-usb";
+                qcom,pm-qos-latency = <41 91 801>;
+                qcom,usb-core-id = <1>;
+                status = "disabled";
+        };
+
 
 	qusb_phy0: qusb@7411000 {
 		compatible = "qcom,qusb2phy";
@@ -2166,7 +2175,7 @@
 		vdd-supply = <&pm8994_s2_corner>;
 		vdda18-supply = <&pm8994_l12>;
 		vdda33-supply = <&pm8994_l24>;
-		qcom,vdd-voltage-level = <1 5 7>;
+		qcom,vdd-voltage-level = <1 4 7>;
 		qcom,tune2-efuse-bit-pos = <21>;
 		qcom,tune2-efuse-num-bits = <4>;
 		qcom,qusb-phy-init-seq = <0xF8 0x80
@@ -2202,7 +2211,7 @@
 		vdd-supply = <&pm8994_s2_corner>;
 		vdda18-supply = <&pm8994_l12>;
 		vdda33-supply = <&pm8994_l24>;
-		qcom,vdd-voltage-level = <1 5 7>;
+		qcom,vdd-voltage-level = <1 4 7>;
 		qcom,tune2-efuse-bit-pos = <25>;
 		qcom,tune2-efuse-num-bits = <4>;
 		qcom,qusb-phy-init-seq = <0xF8 0x80

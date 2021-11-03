@@ -238,8 +238,8 @@
 		qcom,hdmi-audio-rx;
 		letv,smartpa-audio;
 		letv,hph_irq_detect = <0>;
-		asoc-codec = <&stub_codec>, <&hdmi_audio>;
-		asoc-codec-names = "msm-stub-codec.1", "msm-hdmi-audio-codec-rx";
+		asoc-codec = <&stub_codec>, <&ext_disp_audio_codec>;
+                asoc-codec-names = "msm-stub-codec.1", "msm-ext-disp-audio-codec-rx";
 		/delete-property/ qcom,hph-en1-gpio;
 		/delete-property/ qcom,hph-en0-gpio;
 		/delete-property/ qcom,us-euro-gpios;

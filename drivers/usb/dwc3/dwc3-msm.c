@@ -2568,7 +2568,7 @@ int dwc3_set_msm_usb_host_mode(bool mode)
 	}
 
 	if (atomic_read(&dwc->in_lpm)) {
-		dwc3_resume_work(&mdwc->resume_work.work);
+		dwc3_resume_work(&mdwc->resume_work);
 	} else {
 		dwc3_ext_event_notify(mdwc);
 	}
@@ -2665,7 +2665,7 @@ int pi5usb_set_msm_usb_host_mode(bool mode)
 
         if (atomic_read(&dwc->in_lpm)) {
                 dev_dbg(mdwc->dev, "%s: calling resume_work\n", __func__);
-        	dwc3_resume_work(&mdwc->resume_work.work);
+        	dwc3_resume_work(&mdwc->resume_work);
         } else {
                 dev_dbg(mdwc->dev, "%s: notifying xceiv event\n", __func__);
                 //if (mdwc->otg_xceiv)
@@ -2704,77 +2704,6 @@ static irqreturn_t msm_dwc3_pwr_irq(int irq, void *data)
 	dwc3_pwr_event_handler(mdwc);
 	return IRQ_HANDLED;
 }
-
-#ifdef CONFIG_VENDOR_LEECO
-static int
-get_prop_usbin_voltage_now(struct dwc3_msm *mdwc)
-{
-	int rc = 0;
-	struct qpnp_vadc_result results;
-
-	if (IS_ERR_OR_NULL(mdwc->vadc_dev)) {
-		mdwc->vadc_dev = qpnp_get_vadc(mdwc->dev, "usbin");
-		if (IS_ERR(mdwc->vadc_dev))
-			return PTR_ERR(mdwc->vadc_dev);
-	}
-
-	rc = qpnp_vadc_read(mdwc->vadc_dev, USBIN, &results);
-	if (rc) {
-		pr_err("Unable to read usbin rc=%d\n", rc);
-		return 0;
-	} else {
-		return results.physical;
-	}
-}
-
-extern void letv_pd_set_typec_temperature(int temp);
-/*
- * Function to read Type-C temp
- */
-static int get_prop_usbin_temp_now(struct dwc3_msm *mdwc)
-{
-	int rc = 0;
-	struct qpnp_vadc_result results;
-
-	if (IS_ERR_OR_NULL(mdwc->usb_tm_dev)) {
-		mdwc->usb_tm_dev = qpnp_get_vadc(mdwc->dev, "usbtemp");
-		if (IS_ERR(mdwc->usb_tm_dev))
-			return PTR_ERR(mdwc->usb_tm_dev);
-	}
-
-	rc = qpnp_vadc_read(mdwc->usb_tm_dev, LR_MUX10_PU1_AMUX_USB_ID_LV, &results);
-	if (rc) {
-		pr_err("Unable to read usbin rc=%d\n", rc);
-		return 0;
-	} else {
-		letv_pd_set_typec_temperature(results.physical);
-		return results.physical;
-	}
-}
-
-/*
- * Function to read vph_pwr voltage
- */
-static int get_prop_vph_pwr_now(struct dwc3_msm *mdwc)
-{
-	int rc = 0;
-	struct qpnp_vadc_result results;
-
-	if (IS_ERR_OR_NULL(mdwc->usb_tm_dev)) {
-		mdwc->usb_tm_dev = qpnp_get_vadc(mdwc->dev, "usbtemp");
-		if (IS_ERR(mdwc->usb_tm_dev))
-			return PTR_ERR(mdwc->usb_tm_dev);
-	}
-
-	rc = qpnp_vadc_read(mdwc->usb_tm_dev, VSYS, &results);
-	if (rc) {
-		pr_err("Unable to read usbin rc=%d\n", rc);
-		return 0;
-	} else {
-		return results.physical;
-	}
-}
-#endif
 
 
 static int dwc3_cpu_notifier_cb(struct notifier_block *nfb,
