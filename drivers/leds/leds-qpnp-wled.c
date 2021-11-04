@@ -45,6 +45,9 @@
 #define QPNP_WLED_SOFTSTART_RAMP_DLY(b) (b + 0x53)
 #define QPNP_WLED_VLOOP_COMP_RES_REG(b)	(b + 0x55)
 #define QPNP_WLED_VLOOP_COMP_GM_REG(b)	(b + 0x56)
+#ifdef CONFIG_VENDOR_LEECO
+#define QPNP_WLED_PSM_EN_REG(b)         (b + 0x5A)
+#endif
 #define QPNP_WLED_EN_PSM_REG(b)		(b + 0x5A)
 #define QPNP_WLED_PSM_CTRL_REG(b)	(b + 0x5B)
 #define QPNP_WLED_LCD_AUTO_PFM_REG(b)	(b + 0x5C)
@@ -187,6 +190,9 @@
 
 #define QPNP_WLED_SWITCH_FREQ_800_KHZ_CODE	0x0B
 #define QPNP_WLED_SWITCH_FREQ_1600_KHZ_CODE	0x05
+#ifdef CONFIG_VENDOR_LEECO
+#define QPNP_WLED_SWITCH_FREQ_600_KHZ_CODE      0xF
+#endif
 
 #define QPNP_WLED_DISP_SEL_REG(b)	(b + 0x44)
 #define QPNP_WLED_MODULE_RDY_REG(b)	(b + 0x45)
@@ -577,6 +583,14 @@ static int qpnp_wled_set_level(struct qpnp_wled *wled, int level)
 	/* WLED's lower limit of operation is 0.4% */
 	if (level > 0 && level < low_limit)
 		level = low_limit;
+		
+#ifdef CONFIG_VENDOR_LEECO
+	reg = 0x00;	
+	rc = qpnp_wled_write_reg(wled,
+			QPNP_WLED_PSM_EN_REG(wled->ctrl_base), reg);
+	if (rc)
+		return rc;
+#endif
 
 	/* set brightness registers */
 	for (i = 0; i < wled->max_strings; i++) {
@@ -1961,7 +1975,11 @@ static int qpnp_wled_config(struct qpnp_wled *wled)
 	if (wled->switch_freq_khz == 1600)
 		reg = QPNP_WLED_SWITCH_FREQ_1600_KHZ_CODE;
 	else
+#ifdef CONFIG_VENDOR_LEECO
+		reg = QPNP_WLED_SWITCH_FREQ_600_KHZ_CODE;
+#else
 		reg = QPNP_WLED_SWITCH_FREQ_800_KHZ_CODE;
+#endif
 
 	/*
 	 * Do not set the overwrite bit when switching frequency is selected
