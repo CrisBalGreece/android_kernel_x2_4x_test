@@ -10353,6 +10353,51 @@ static const struct of_device_id msm8996_asoc_machine_of_match[]  = {
 static struct snd_soc_card *populate_snd_card_dailinks(struct device *dev)
 {
 	struct snd_soc_card *card = NULL;
+#ifdef CONFIG_VENDOR_LEECO
+        struct snd_soc_dai_link *dailink;
+        int len_1, len_2, len_3, len_4;
+        const struct of_device_id *match;
+
+        match = of_match_node(msm8996_asoc_machine_of_match, dev->of_node);
+        if (!match) {
+                dev_err(dev, "%s: No DT match found for sound card\n",
+                        __func__);
+                return NULL;
+        }
+
+        if (!strcmp(match->data, "tasha_codec")) {
+                card = &snd_soc_card_tasha_msm8996;
+                len_1 = ARRAY_SIZE(msm8996_common_dai_links);
+                len_2 = len_1 + ARRAY_SIZE(msm8996_tasha_fe_dai_links);
+                len_3 = len_2 + ARRAY_SIZE(msm8996_common_be_dai_links);
+
+                memcpy(msm8996_tasha_dai_links,
+                       msm8996_common_dai_links,
+                       sizeof(msm8996_common_dai_links));
+                memcpy(msm8996_tasha_dai_links + len_1,
+                       msm8996_tasha_fe_dai_links,
+                       sizeof(msm8996_tasha_fe_dai_links));
+                memcpy(msm8996_tasha_dai_links + len_2,
+                       msm8996_common_be_dai_links,
+                       sizeof(msm8996_common_be_dai_links));
+                memcpy(msm8996_tasha_dai_links + len_3,
+                       msm8996_tasha_be_dai_links,
+                       sizeof(msm8996_tasha_be_dai_links));
+
+                dailink = msm8996_tasha_dai_links;
+                len_4 = len_3 + ARRAY_SIZE(msm8996_tasha_be_dai_links);
+        }
+
+        if (of_property_read_bool(dev->of_node, "qcom,hdmi-audio-rx")) {
+                dev_dbg(dev, "%s(): hdmi audio support present\n",
+                                __func__);
+                memcpy(dailink + len_4, msm8996_hdmi_dai_link,
+                        sizeof(msm8996_hdmi_dai_link));
+                len_4 += ARRAY_SIZE(msm8996_hdmi_dai_link);
+        } else {
+                dev_dbg(dev, "%s(): No hdmi audio support\n", __func__);
+        }
+#else
 	struct snd_soc_dai_link *dailink = NULL;
 	int len_1 = 0, len_2 = 0, len_3 = 0, len_4 = 0, len_5 = 0;
 	const struct of_device_id *match;
@@ -10409,6 +10454,8 @@ static struct snd_soc_card *populate_snd_card_dailinks(struct device *dev)
 	} else {
 		dev_dbg(dev, "%s(): No TDM support\n", __func__);
 	}
+#endif
+
 #ifdef CONFIG_SND_SOC_ES9018
         if (of_property_read_bool(dev->of_node, "letv,hifi-audio")) {
                 pr_info("%s(): hifi audio support present\n",
@@ -10460,7 +10507,11 @@ static struct snd_soc_card *populate_snd_card_dailinks(struct device *dev)
 
 	if (card) {
 		card->dai_link = dailink;
+#ifdef CONFIG_VENDOR_LEECO
+		card->num_links = len_4;
+#else
 		card->num_links = len_5;
+#endif
 	}
 
 	return card;
