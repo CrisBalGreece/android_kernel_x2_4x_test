@@ -11,11 +11,10 @@
  */
 
 #include "msm8996-mtp-le-common.dtsi"
-#include "msm8996-pinctrl-le_x2_na.dtsi"
+#include "msm8996-pinctrl-le_x2.dtsi"
 #include "msm8996-le-common.dtsi"
-#include "dsi-panel-truly-dualmipi-cmd-le_x2_na.dtsi"
-#include "letv-tp-synaptics-dsx-i2c.dtsi"
-#include "msm8996-camera-sensor-le_x2.dtsi"
+#include "dsi-panel-truly-dualmipi-cmd-le_x2-evt.dtsi"
+#include "letv-tp-synaptics-dsx-i2c-le_x2-evt.dtsi"
 
 &sdhc_2 {
 	status = "disabled";
@@ -136,6 +135,25 @@
 	/delete-node/ gpio@cb00; /* PM8996 GPIO 12 */
 	/delete-node/ gpio@cc00; /* PM8996 GPIO 13 */
 	/delete-node/ gpio@cd00; /* PM8996 GPIO 14 */
+
+	gpio@d500 { /* GPIO 22 */ /* cclogic cable interrupt gpio */
+		qcom,mode = <0>;
+		qcom,pull = <5>;
+		qcom,vin-sel = <2>;
+		qcom,src-sel = <0>;
+		status = "okay";
+	};
+
+	gpio@d000 { /* GPIO 17 - analogic input clock */
+		qcom,mode = <1>;		/* Digital output*/
+		qcom,output-type = <0>;		/* CMOS logic */
+		qcom,invert = <0>;		/* Output low initially */
+		qcom,vin-sel = <2>;		/* VIN2 */
+		qcom,src-sel = <2>;		/* SPECIAL_FUNCTION */
+		qcom,out-strength = <2>;		/* Medisum */
+		qcom,master-en = <1>;		/* Enable GPIO */
+		status = "okay";
+	};
 };
 
 &slim_msm {
@@ -209,7 +227,7 @@
                                 "msm-lsm-client", "msm-pcm-routing", "msm-cpe-lsm",
                                 "msm-compr-dsp", "msm-pcm-dsp-noirq",
                                 "msm-cpe-lsm.3";
-		asoc-cpu = <&dai_pri_auxpcm>, <&dai_sec_auxpcm>, <&dai_hdmi>,
+                asoc-cpu = <&dai_pri_auxpcm>, <&dai_sec_auxpcm>, <&dai_hdmi>,
                                 <&dai_pri_mi2s>, <&dai_sec_mi2s>,
                                 <&dai_tert_mi2s>, <&dai_quat_mi2s>,
                                 <&sb_0_rx>, <&sb_0_tx>, <&sb_1_rx>, <&sb_1_tx>,
@@ -269,7 +287,7 @@
                                 "msm-dai-q6-tdm.36913", "msm-dai-q6-tdm.36915",
                                 "msm-dai-q6-tdm.36917", "msm-dai-q6-tdm.36919";
 
-		qqcom,hdmi-audio-rx;
+		qcom,hdmi-audio-rx;
 		letv,smartpa-audio;
 		letv,hph_irq_detect = <0>;
                 asoc-codec = <&stub_codec>, <&ext_disp_audio_codec>;
@@ -277,8 +295,9 @@
 		/delete-property/ qcom,hph-en1-gpio;
 		/delete-property/ qcom,hph-en0-gpio;
 		/delete-property/ qcom,us-euro-gpios;
-		/delete-property/ qcom,wsa-devs;
-		/delete-property/ qcom,wsa-aux-dev-prefix;
+		qcom,wsa-max-devs = <0>;
+		qcom,wsa-devs = <0>;
+		qcom,wsa-aux-dev-prefix = <0>;
 	};
 
 	qcom,msm-dai-mi2s {
@@ -365,17 +384,34 @@
 };
 
 &i2c_6 {
-	usb_cclogic@08 {        /* The I2C bus that CCG2 connected to */
-		status = "ok";
-		compatible = "cypress,cyccg";
-		reg = <0x08>;                    /* CCG2 I2C address: 0x08*/
-		interrupts = <73 0>;            /* CCG2 interrupt line GPIO: 73*/
-		interrupt-parent = <&tlmm>;      /* CCG2 interrupt line GPIO controller */
-		intr-comm-gpio = <&tlmm 73 0x0>;
+	usb_cclogic@28 {
+		compatible = "analogix,ohio";
+		reg = <0x28>;
+		avdd33-supply = <&pm8994_l21>;
+		dvdd_io-supply = <&pm8994_s4>;
+		interrupt-extended = <&tlmm 73 0x3>,<&spmi_bus 0x0 0xd5 0x0>;
+		p-on-gpio = <&tlmm 81 0x0>;
 		reset-gpio = <&pmi8994_gpios 9 0x0>;
-		ad-sel-gpio = <&tlmm 25 0x0>;
+		cbl-det-gpio = <&pm8994_gpios 22 0x0>;
+		intr-comm-gpio = <&tlmm 73 0x0>;
 		uart-sw-gpio = <&tlmm 132 0x0>;
+		uart-sw2-gpio = <&tlmm 21 0x0>;
+		ad-sel-gpio = <&tlmm 25 0x0>;
+	};
+
+	dp_analogic@38 {
+		compatible = "analogix,anx7816";
+		reg = <0x38>;
+		analogix,vdd_33-supply = <&pm8994_l21>;
+		analogix,vdd_18-supply = <&pm8994_s4>;
+		vdd_10-supply = <&pm8994_l27>;
 		pmi8994_boost_5v-supply = <&pmi8994_boost_5v>;
+		analogix,reset-gpio = <&tlmm 14 0x0>;
+		analogix,p-dwn-gpio = <&tlmm 30 0x0>;
+		analogix,cbl-det-gpio = <&tlmm 39 0x0>;
+		analogix,dp-clk-gpio = <&pm8994_gpios 17 0x0>;
+		clocks = <&clock_gcc clk_div_clk3>;
+		clock-names = "dp_clk";
 	};
 };
 
@@ -393,11 +429,6 @@
 		interrupts = <122 0x00>;
 		irq-gpio = <&tlmm 122 0x00>;
 		reset-gpio = <&tlmm 90 0x00>;
-	};
-
-	at24@51 {
-		compatible = "atmel,24c32";
-		reg = <0x51>;
 	};
 
 };
@@ -443,9 +474,9 @@
 };
 
 &qusb_phy0 {
-        qcom,qusb-phy-init-seq = <0x78 0x80
-                                0xAC 0x84
-                                0x94 0x88
+        qcom,qusb-phy-init-seq = <0xF8 0x80
+                                0xB3 0x84
+                                0x83 0x88
                                 0xCF 0x8C
                                 0x30 0x08
                                 0x79 0x0C

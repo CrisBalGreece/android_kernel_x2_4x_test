@@ -1026,7 +1026,7 @@ static bool is_otg_present(struct smbchg_chip *chip)
 	if (chip->schg_version == QPNP_SCHG_LITE)
 		return is_otg_present_schg_lite(chip);
 
-	return is_otg_present_schg(chip) || cclogic_get_otg_state();
+	return is_otg_present_schg(chip);
 }
 
 #define USBIN_9V			BIT(5)
@@ -5783,14 +5783,9 @@ static void restore_from_hvdcp_detection(struct smbchg_chip *chip)
 		pr_err("Couldn't enable APSD rc=%d\n", rc);
 
 	/* Reset back to 5V unregulated */
-#ifdef SUPPORT_ONLY_5V_CHARGER
 	rc = smbchg_sec_masked_write(chip,
 		chip->usb_chgpth_base + USBIN_CHGR_CFG,
-		ADAPTER_ALLOWANCE_MASK, USBIN_ADAPTER_5V);
-#else
-	rc = smbchg_sec_masked_write(chip,
-		chip->usb_chgpth_base + USBIN_CHGR_CFG,
-#ifdef CONFIG_VENDOR_LEECO
+#ifndef CONFIG_VENDOR_LEECO
 		/* Continuous regulation 5V~9V. */
 		ADAPTER_ALLOWANCE_MASK, USBIN_ADAPTER_5V_9V_CONT);
 #else

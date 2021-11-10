@@ -6866,8 +6866,8 @@ static const struct snd_kcontrol_new msm_snd_controls[] = {
                         msm_quat_mi2s_rx_ch_get, msm_quat_mi2s_rx_ch_put),
         SOC_ENUM_EXT("QUAT_MI2S_TX Channels", msm8996_mi2s_snd_enum[9],
                         msm_quat_mi2s_tx_ch_get, msm_quat_mi2s_tx_ch_put),
-        SOC_SINGLE_EXT("USB type-c Switch", SND_SOC_NOPM, 0, 0, 0,
-                        usb_headset_analog_digital_get, usb_headset_analog_digital_set),
+//        SOC_SINGLE_EXT("USB type-c Switch", SND_SOC_NOPM, 0, 0, 0,
+//                        usb_headset_analog_digital_get, usb_headset_analog_digital_set),
         SOC_ENUM_EXT("VOICE_CALL State", msm8996_mi2s_snd_enum[10],
                         voice_call_state_get, voice_call_state_set),
 #endif
@@ -7309,7 +7309,7 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
-	#ifdef CONFIG_SND_SOC_WSA881X
+#ifdef CONFIG_SND_SOC_WSA881X
 	struct snd_soc_pcm_runtime *rtd_aux = rtd->card->rtd_aux;
 #endif
 	void *mbhc_calibration;

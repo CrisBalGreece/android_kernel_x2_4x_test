@@ -8,6 +8,11 @@
 # conmakehash:	 Create arrays for initializing the kernel console tables
 # docproc:       Used in Documentation/DocBook
 # check-lc_ctype: Used in Documentation/DocBook
+# Disable unused-command-line-argument
+ifeq ($(cc-name),clang)
+EXTRA_CFLAGS += $(call cc-disable-warning, unused-command-line-argument)
+endif
+
 
 HOST_EXTRACFLAGS += -I$(srctree)/tools/include
 

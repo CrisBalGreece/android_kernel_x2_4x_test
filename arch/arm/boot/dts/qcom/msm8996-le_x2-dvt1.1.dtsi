@@ -38,22 +38,22 @@
                 compatible = "qcom,msm8996-asoc-snd-tasha";
 		qcom,model = "msm8996-tasha-mtp-snd-card";
 
-		qcom,audio-routing =
-			"AIF4 VI", "MCLK",
-			"RX_BIAS", "MCLK",
-			"MADINPUT", "MCLK",
-			"AMIC1", "MIC BIAS1",
-			"MIC BIAS1", "Handset Mic",
-			"AMIC2", "MIC BIAS2",
-			"MIC BIAS2", "Headset Mic",
-			"AMIC3", "MIC BIAS2",
-			"MIC BIAS2", "USB Type-c Back Mic",
-			"AMIC4", "MIC BIAS4",
-			"MIC BIAS4", "REC ANC Analog Mic",
-			"AMIC5", "MIC BIAS3",
-			"MIC BIAS3", "ANC Analog Mic",
-			"AMIC6", "MIC BIAS1",
-			"MIC BIAS1", "Main Mic2";
+                qcom,audio-routing =
+                        "AIF4 VI", "MCLK",
+                        "RX_BIAS", "MCLK",
+                        "MADINPUT", "MCLK",
+                        "AMIC1", "MIC BIAS1",
+                        "MIC BIAS1", "Handset Mic",
+                        "AMIC2", "MIC BIAS2",
+                        "MIC BIAS2", "Headset Mic",
+                        "AMIC3", "MIC BIAS2",
+                        "MIC BIAS2", "USB Type-c Back Mic",
+                        "AMIC4", "MIC BIAS4",
+                        "MIC BIAS4", "REC ANC Analog Mic",
+                        "AMIC5", "MIC BIAS3",
+                        "MIC BIAS3", "ANC Analog Mic",
+                        "AMIC6", "MIC BIAS1",
+                        "MIC BIAS1", "Main Mic2";
 
                 asoc-platform = <&pcm0>, <&pcm1>, <&pcm2>, <&voip>, <&voice>,
                                 <&loopback>, <&compress>, <&hostless>,
@@ -65,7 +65,7 @@
                                 "msm-lsm-client", "msm-pcm-routing", "msm-cpe-lsm",
                                 "msm-compr-dsp", "msm-pcm-dsp-noirq",
                                 "msm-cpe-lsm.3";
-		asoc-cpu = <&dai_pri_auxpcm>, <&dai_sec_auxpcm>, <&dai_hdmi>,
+                asoc-cpu = <&dai_pri_auxpcm>, <&dai_sec_auxpcm>, <&dai_hdmi>,
                                 <&dai_pri_mi2s>, <&dai_sec_mi2s>,
                                 <&dai_tert_mi2s>, <&dai_quat_mi2s>,
                                 <&sb_0_rx>, <&sb_0_tx>, <&sb_1_rx>, <&sb_1_tx>,
@@ -125,10 +125,11 @@
                                 "msm-dai-q6-tdm.36913", "msm-dai-q6-tdm.36915",
                                 "msm-dai-q6-tdm.36917", "msm-dai-q6-tdm.36919";
 
-		letv,smartpa-audio;
+		qcom,hdmi-audio-rx;
+                letv,smartpa-audio;
                 letv,hph_irq_detect = <0>;
-                asoc-codec = <&stub_codec>, <&hdmi_audio>;
-                asoc-codec-names = "msm-stub-codec.1", "msm-hdmi-audio-codec-rx";
+                asoc-codec = <&stub_codec>, <&ext_disp_audio_codec>;
+                asoc-codec-names = "msm-stub-codec.1", "msm-ext-disp-audio-codec-rx";
                 /delete-property/ qcom,hph-en1-gpio;
                 /delete-property/ qcom,hph-en0-gpio;
                 /delete-property/ qcom,us-euro-gpios;
@@ -157,4 +158,16 @@
 	usb_cclogic@28 {
 		status = "disabled";
 	};
+};
+
+/{
+	mtp_batterydata: qcom,battery-data {
+		qcom,batt-id-range-pct = <15>;
+		#include "batterydata-le-x2-3200mah.dtsi"
+	};
+};
+
+&pmi8994_charger {
+	qcom,float-voltage-mv = <4400>;
+	qcom,ignore_otgid;
 };

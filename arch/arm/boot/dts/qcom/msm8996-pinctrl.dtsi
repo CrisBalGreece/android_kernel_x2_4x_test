@@ -257,8 +257,8 @@
 				bias-disable;
 			};
 		};
-		
-		blsp1_uart5_active: blsp1_uart5_active {
+
+                blsp1_uart5_active: blsp1_uart5_active {
                         mux {
                                 pins = "gpio81", "gpio82";
                                 function = "blsp_uart5";
@@ -283,7 +283,6 @@
                                 bias-disable;
                         };
                 };
-
 
 		blsp1_uart6_active: blsp1_uart6_active {
 			mux {
@@ -310,8 +309,8 @@
 				bias-disable;
 			};
 		};
-		
-		blsp2_uart1_active: blsp2_uart1_active {
+
+                blsp2_uart1_active: blsp2_uart1_active {
                         mux {
                                 pins = "gpio53", "gpio54";
                                 function = "blsp_uart7";
@@ -790,8 +789,8 @@
 				};
 			};
 		};
-		
-		i2c_3 { /* BLSP1 QUP3 */
+
+                i2c_3 { /* BLSP1 QUP3 */
                         i2c_3_active: i2c_3_active {
                                 mux {
                                         pins = "gpio47", "gpio48";
@@ -818,7 +817,7 @@
                                 };
                         };
                 };
-		
+
 		i2c_12 {
                         i2c_12_active: i2c_12_active {
 				mux {
@@ -1494,8 +1493,8 @@
 					input-enable;
 				};
 			};
-			
-			wcd_intr_default2: wcd_intr_default2{
+
+                        wcd_intr_default2: wcd_intr_default2{
                                 mux {
                                         pins = "gpio127";
                                         function = "gpio";
@@ -1507,7 +1506,7 @@
                                         bias-pull-down; /* pull down */
                                         input-enable;
 				};
-			};			
+			};
 		};
 
 		cdc_reset_ctrl {
@@ -1783,8 +1782,8 @@
 				};
 			};
 		};
-		
-		tert_mi2s_sd1 {
+
+               tert_mi2s_sd1 {
                         tert_mi2s_sd1_sleep: tert_mi2s_sd1_sleep {
                                 mux {
                                         pins = "gpio78";
@@ -1810,33 +1809,6 @@
                                 };
                         };
                 };
-
-		tert_mi2s_sd1 {
-			tert_mi2s_sd1_sleep: tert_mi2s_sd1_sleep {
-				mux {
-					pins = "gpio78";
-					function = "ter_mi2s";
-				};
-
-				config {
-					pins = "gpio78";
-					drive-strength = <2>;   /* 2 mA */
-					bias-pull-down;         /* PULL DOWN */
-				};
-			};
-			tert_mi2s_sd1_active: tert_mi2s_sd1_active {
-				mux {
-					pins = "gpio78";
-					function = "ter_mi2s";
-				};
-
-				config {
-					pins = "gpio78";
-					drive-strength = <8>;   /* 8 mA */
-					bias-disable;           /* NO PULL */
-				};
-			};
-		};
 
 		tert_mi2s_sd0 {
 			tert_mi2s_sd0_sleep: tert_mi2s_sd0_sleep {
@@ -1893,32 +1865,33 @@
 			};
 		};
 
-		quat_mi2s_sd1 {
-			quat_mi2s_sd1_sleep: quat_mi2s_sd1_sleep {
-				mux {
-					pins = "gpio61";
-					function = "qua_mi2s";
-				};
+                quat_mi2s_sd1 {
+                        quat_mi2s_sd1_sleep: quat_mi2s_sd1_sleep {
+                                mux {
+                                        pins = "gpio61";
+                                        function = "qua_mi2s";
+                                };
 
-				config {
-					pins = "gpio61";
-					drive-strength = <2>;   /* 2 mA */
-					bias-pull-down;         /* PULL DOWN */
-				};
-			};
-			quat_mi2s_sd1_active: quat_mi2s_sd1_active {
-				mux {
-					pins = "gpio61";
-					function = "qua_mi2s";
-				};
+                                config {
+                                        pins = "gpio61";
+                                        drive-strength = <2>;   /* 2 mA */
+                                        bias-pull-down;         /* PULL DOWN */
+                                };
+                        };
+                        quat_mi2s_sd1_active: quat_mi2s_sd1_active {
+                                mux {
+                                        pins = "gpio61";
+                                        function = "qua_mi2s";
+                                };
 
-				config {
-					pins = "gpio61";
-					drive-strength = <8>;   /* 8 mA */
-					bias-disable;           /* NO PULL */
-				};
-			};
-		};
+                                config {
+                                        pins = "gpio61";
+                                        drive-strength = <8>;   /* 8 mA */
+                                        bias-disable;           /* NO PULL */
+                                };
+                        };
+                };
+
 
 		quat_mi2s_sd0 {
 			quat_mi2s_sd0_sleep: quat_mi2s_sd0_sleep {
@@ -2110,65 +2083,8 @@
 				};
 			};
 		};
-		ap_mclk_en {
-			ap_mclk_sleep: ap_mclk_sleep {
-				mux {
-					pins = "gpio133";
-					function = "gpio";
-				};
 
-				config {
-					pins = "gpio133";
-					drive-strength = <2>;
-					bias-pull-down;
-					output-low;
-				};
-			};
-			ap_mclk_active: ap_mclk_active {
-				mux {
-					pins = "gpio133";
-					function = "gpio";
-				};
-
-				config {
-					pins = "gpio133";
-					drive-strength = <2>;
-					bias-disable;
-					output-high;
-				};
-			};
-		};
-
-		mdm_mclk_en {
-			mdm_mclk_sleep: mdm_mclk_sleep {
-				mux {
-					pins = "gpio134";
-					function = "gpio";
-				};
-
-				config {
-					pins = "gpio134";
-					drive-strength = <2>;
-					bias-pull-down;
-					output-low;
-				};
-			};
-			mdm_mclk_active: mdm_mclk_active {
-				mux {
-					pins = "gpio134";
-					function = "gpio";
-				};
-
-				config {
-					pins = "gpio134";
-					drive-strength = <2>;
-					bias-disable;
-					output-high;
-				};
-			};
-		};
-		
-		ap_mclk_en {
+                ap_mclk_en {
                         ap_mclk_sleep: ap_mclk_sleep {
                                 mux {
                                         pins = "gpio133";
@@ -2225,7 +2141,6 @@
                                 };
                         };
                 };
-
 
 		cci0_active: cci0_active {
 			mux {
@@ -2424,8 +2339,8 @@
 				drive-strength = <2>; /* 2 MA */
 			};
 		};
-		
-		cam_sensor_mclk3_active: cam_sensor_mclk3_active{
+
+                cam_sensor_mclk3_active: cam_sensor_mclk3_active{
                         /* MCLK3 */
                         mux {
                                 /* CLK, DATA */

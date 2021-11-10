@@ -1,5 +1,10 @@
 # MSM Machine Support
 
+# Disable unused-command-line-argument
+ifeq ($(cc-name),clang)
+EXTRA_CFLAGS += $(call cc-disable-warning, unneeded-internal-declaration)
+endif
+
 snd-soc-hostless-pcm-objs := msm-pcm-hostless.o
 obj-$(CONFIG_SND_SOC_MSM_HOSTLESS_PCM) += snd-soc-hostless-pcm.o
 

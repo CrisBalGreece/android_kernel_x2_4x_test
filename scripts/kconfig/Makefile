@@ -2,6 +2,11 @@
 # Kernel configuration targets
 # These targets are used from top-level makefile
 
+# Disable unused-command-line-argument
+ifeq ($(cc-name),clang)
+EXTRA_CFLAGS += $(call cc-disable-warning, unused-command-line-argument)
+endif
+
 PHONY += xconfig gconfig menuconfig config silentoldconfig update-po-config \
 	localmodconfig localyesconfig
 
